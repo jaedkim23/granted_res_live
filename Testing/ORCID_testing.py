@@ -4,13 +4,15 @@ import pandas as pd
 from sqlalchemy import text, bindparam
 from config.settings import get_sqlalchemy_engine
 
-testing_file = "ground_truth - 200.csv"
+testing_file = "ground_truth - names.csv"
+# testing_file = "ground_truth - 200.csv"
 
 df = pd.read_csv(testing_file)
 
-df = df[['res_id', 'first_name', 'last_name', 'author_name', 'crossref', 'orcid',
-       'orcid + crossref', 'orcid_no_affiliation', 'orcid_no_last_name',
-       'Correct ORCID ID', 'Comment']]
+# df = df[['res_id', 'first_name', 'last_name', 'author_name', 'crossref', 'orcid',
+#        'orcid + crossref', 'orcid_no_affiliation', 'orcid_no_last_name',
+#        'Correct ORCID ID', 'Comment']]
+
 
 ### Correct res_id value in eval set
 engine = get_sqlalchemy_engine()
@@ -30,12 +32,13 @@ df = df.drop(columns='res_id').merge(
 
 df = df[df['Correct ORCID ID'].notna()]
 df_sub1 = df[df['Correct ORCID ID'].notna() & (df['Correct ORCID ID'].str.strip() != '')]
+# df_sub = df[df['Correct ORCID ID'].notna() & (df['Correct ORCID ID'].str.strip() != '')]
 df_sub = df_sub1[df_sub1['res_id'].notna() & (df_sub1['res_id'] != 0)]
 
 correct_orcids = df_sub['Correct ORCID ID'].str.strip().unique().tolist()
 
 ### Testing against CSV file
-ORCID_OUT = "ORCID_results.csv"
+ORCID_OUT = "api/ORCID_results.csv"
 orcid_df = pd.read_csv(ORCID_OUT)
 
 emp_matches = orcid_df[orcid_df['res_id'].isin(df_sub['res_id'].tolist())]
